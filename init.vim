@@ -1,10 +1,23 @@
 colorscheme habamax
+if has('termguicolors')
+  set termguicolors
+endif
 
-let loaded_netrwPlugin = 1
+set tabstop=2
+set shiftwidth=2
+set expandtab
+set number
+set signcolumn=yes
+lang en_US.UTF-8
 
-set path=src/**
+set path=.,~/.config/nvim,/src/**
 
 let $PATH = $PATH . ':' .  expand('~/.config/yarn/global/node_modules/.bin')
+
+augroup my-lsp-diagnostic
+  au!
+  au DiagnosticChanged *.go,*.ts,*.tsx lua vim.diagnostic.setqflist({open = false})
+augroup end
 
 lua << EOF
 vim.api.nvim_create_autocmd("BufReadPost", {
@@ -18,6 +31,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     })
   end
 })
+
 vim.api.nvim_create_autocmd("BufReadPost", {
   pattern = "*.go",
   callback = function()
