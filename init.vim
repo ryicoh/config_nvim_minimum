@@ -10,15 +10,36 @@ set number
 set signcolumn=yes
 lang en_US.UTF-8
 
-set path=.,~/.config/nvim,/src/**
-
-let $PATH = $PATH . ':' .  expand('~/.config/yarn/global/node_modules/.bin')
+let &path = ',,' . 'src/**,' . expand('~/.config/nvim')
 
 augroup my-lsp-diagnostic
   au!
-  au DiagnosticChanged *.go,*.ts,*.tsx lua vim.diagnostic.setqflist({open = false})
+  au DiagnosticChanged *.go lua vim.diagnostic.setloclist({open = false})
 augroup end
 
+nnoremap ga <Cmd>lua vim.lsp.buf.code_action()<CR>
+nnoremap <leader>rn :<C-u>lua vim.lsp.buf.rename('')<Left><Left>
+nnoremap <leader>f <Cmd>lua vim.lsp.buf.format()<CR>
+nnoremap <leader>q <Cmd>lua vim.diagnostic.setqflist()<CR>
+
+set completeopt=menuone,noselect,noinsert
+function! s:lsp_completion() abort
+  if pumvisible()
+    return
+  endif
+
+  if (
+    \ (v:char >= 'a' && v:char <= 'z') ||
+    \ (v:char >= 'A' && v:char <= 'Z') ||
+    \ (v:char == '.')
+    \ )
+    call feedkeys("\<C-x>\<C-o>")
+  endif
+endfunction
+
+autocmd InsertCharPre *.go call s:lsp_completion()
+
+let $PATH = $PATH . ':' .  expand('~/.config/yarn/global/node_modules/.bin')
 lua << EOF
 vim.api.nvim_create_autocmd("BufReadPost", {
   pattern = "*.ts,*.tsx",
